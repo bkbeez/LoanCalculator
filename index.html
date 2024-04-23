@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
+        <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+        <title>TypeScript2Loaner</title>
+        <script type="text/javascript" src="Calculate.js"></script>
+        <style type="text/css">
+            html,body{margin:0;padding:0;}
+            body{background:#f3f3f4;}
+            .app-bar {
+                top: 0;
+                width: 100%;
+                z-index: 5;
+                height: 60px;
+                position: fixed;
+                background: #2f4050;
+                -webkit-box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
+                box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
+                text-overflow:ellipsis;
+                white-space:nowrap;
+                overflow:hidden;
+            }
+            .app-bar h1 {
+                color: white;
+                font-size: 32px;
+                line-height: 12px;
+                font-family: fantasy;
+            }
+            .app-body .table-form {
+                width: 667px;
+                padding: 10px 10px 15px 20px;
+                background-color: white;
+            }
+            .app-body .table-form table {
+                width:100%;
+                border-collapse:collapse;
+            }
+            .app-body .table-form table tr td {
+                padding: 1px 2px;
+                vertical-align: bottom;
+            }
+            .app-body .table-form label {
+                line-height: 24px;
+                display: block;
+            }
+            .app-body .table-form input {
+                width: 87.5%;
+                padding: 6px 12px;
+            }
+            .app-body .table-form select {
+                width: 96%;
+                padding: 6px 12px;
+            }
+            .app-body .table-form button {
+                margin-top: 15px;
+                padding: 6px 12px;
+                cursor: pointer;
+            }
+            .app-body .table-list {
+                width: 667px;
+                border-top:1px solid #999;
+                padding: 15px 10px 20px 20px;
+                background-color: white;
+            }
+            .app-body .table-list table {
+                width:100%;
+                border-collapse:collapse;
+                border-top:2px solid #999;
+            }
+            .app-body .table-list table tr th {
+                font-size: 14px;
+                line-height: 28px;
+                font-weight:bold;
+            }
+            .app-body .table-list table tr td {
+                font-size: 14px;
+                line-height: 28px;
+                border-top:1px solid #999;
+            }
+            .app-body .table-list table tr td.money {
+                text-align: right;
+            }
+            @media only all and (max-width: 350px){
+
+            }
+        </style>
+    </head>
+    <body>
+        <section class="app-bar">
+            <center><h1>Loan Calculation System</h1></center>
+        </section>
+        <section class="app-body">
+            <section class="inner">
+                <div style="height:60px;">&nbsp;</div>
+                <div style="padding:15px 0;">
+                    <center>
+                        <div class="table-form">
+                            <table border="0" align="center" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:auto;">&nbsp;</th>
+                                        <th style="width:45%;">&nbsp;</th>
+                                        <th style="width:7%;">&nbsp;</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <label>จำนวนเงินกู้</label>
+                                            <input name="money" type="number" value="100000" min="0"/>
+                                        </td>
+                                        <td colspan="2">
+                                            <label>อัตราดอกเบี้ย (%)</label>
+                                            <input name="interest" type="number" value="5" min="0"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label>เริ่มชำระวันที่</label>
+                                            <input name="start_date" type="date" value=""/>
+                                        </td>
+                                        <td colspan="2">
+                                            <label>รูปแบบการชำระเงิน</label>
+                                            <select name="plan_pay">
+                                                <option value="plan_1" selected>เงินต้นคงที่</option>
+                                                <option value="plan_2">เงินต้น+ดอกเบี้ย เท่ากันทุกงวด</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label>จำนวน</label>
+                                            <select name="mode_pay" onchange="changeMode(this)">
+                                                <option value="mode_1" selected>งวดผ่อนชำระ</option>
+                                                <option value="mode_2">เงินผ่อนชำระ</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <label>&nbsp;</label>
+                                            <input name="mode_value" type="number" value="0" min="0" style="width:90%;"/>
+                                        </td>
+                                        <td class="set-unit" style="padding-bottom:7px;text-align:left;padding-left:0;" align="left">งวด</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="button">คำนวณ</button>
+                        </div>
+                        <div class="table-list">
+                            <table border="0" align="center" cellpadding="0" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th style="width:6%;text-align:center;">งวด</th>
+                                        <th style="width:auto;text-align:left;">เดือน/ปี</th>
+                                        <th style="width:15%;text-align:right;">เงินต้นคงเหลือ</th>
+                                        <th style="width:15%;text-align:right;">เงินต้นชำระ</th>
+                                        <th style="width:15%;text-align:right;">ดอกเบี้ย</th>
+                                        <th style="width:15%;text-align:right;">รวมชำระ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="no" style="text-align:center;">1</td>
+                                        <td class="month" style="text-align:left;">00/0000</td>
+                                        <td class="money">1,000.00</td>
+                                        <td class="money">1,000.00</td>
+                                        <td class="money">0.00</td>
+                                        <td class="money">2,000.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </center>
+                </div>
+            </section>
+        </section>
+        <script type="text/javascript">
+            function changeMode(self){
+                if(self.value=='mode_1'){
+                    document.getElementsByClassName("set-unit")[0].innerHTML = 'งวด';
+                }else{
+                    document.getElementsByClassName("set-unit")[0].innerHTML = 'บาท';
+                }
+            }
+        </script>
+    </body>
+</html>
