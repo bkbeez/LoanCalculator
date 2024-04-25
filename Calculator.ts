@@ -1,17 +1,12 @@
-function setUnit(self): void {
-    (<HTMLInputElement>document.getElementById("calculator-amount")).value = '0';
-    if(self.value=='M1'){
-        document.getElementById("method-unit").innerHTML = 'งวด';
-    }else{
-        document.getElementById("method-unit").innerHTML = 'บาท';
-    }
+function displayMonth(month: number): string {
+    return ( (month>9) ? month.toString() : '0'+month );
 }
 
 function calculateByPeriod(money: number, rate: number, period: number, date: string): any {
     let results: { no: number, period: string, cost: number, interest: number, amount: number, balance: number }[] = [];
-    console.log(date);
     var begin = new Date(date);
-    console.log(begin);
+    let m = begin.getMonth();
+    let y = begin.getFullYear();
     let balance = money;
     let cost = Math.ceil(money/period);
     for(let no=1;no<=period;no++){
@@ -19,13 +14,19 @@ function calculateByPeriod(money: number, rate: number, period: number, date: st
             cost = balance;
         }
         let row = {'no':no, 'period':'01/2024', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
-        row.period = (begin.getMonth()+1).toString()+'/'+begin.getFullYear().toString();
+        row.period = displayMonth(m)+'/'+y;
         row.interest = parseFloat(((balance*(rate/period))/12).toFixed(2));
         row.cost = cost;
         row.amount = parseFloat((row.cost+row.interest).toFixed(2));
         balance -= cost;
         row.balance = balance;
         results.push(row);
+        if(m==12){
+            m = 1;
+            y++;
+        }else{
+            m++;
+        }
     }
 
     return results;
@@ -34,6 +35,8 @@ function calculateByPeriod(money: number, rate: number, period: number, date: st
 function calculateByCost(money: number, rate: number, cost: number, date: string): any {
     let results: { no: number, period: string, cost: number, interest: number, amount: number, balance: number }[] = [];
     var begin = new Date(date);
+    let m = begin.getMonth();
+    let y = begin.getFullYear();
     let balance = money;
     let no = 1;
     do {
@@ -41,13 +44,19 @@ function calculateByCost(money: number, rate: number, cost: number, date: string
             cost = balance;
         }
         let row = {'no':no, 'period':'01/2000', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
-        row.period = ( (begin.getMonth()<=9) ? '0'+begin.getMonth() : begin.getMonth() )+'/'+begin.getFullYear();
+        row.period = displayMonth(m)+'/'+y;
         row.interest = parseFloat(((balance*(rate/100))/12).toFixed(2));
         row.cost = cost;
         row.amount = parseFloat((row.cost+row.interest).toFixed(2));
         balance -= cost;
         row.balance = balance;
         results.push(row);
+        if(m==12){
+            m = 1;
+            y++;
+        }else{
+            m++;
+        }
         no++;
     }  while ( balance>0 );
     return results;
@@ -66,6 +75,7 @@ function runCalculator(): void {
         results = calculateByCost(money, rate, amount, date);
     }
     let htmls = '';
+    let  costTotal=0, interestTotal=0, amountTotal=0;
     if( results.length>0 ){
         for(let i=0;i<results.length;i++){
             htmls += '<tr>';
@@ -76,9 +86,18 @@ function runCalculator(): void {
                 htmls += '<td class="money">'+(results[i].interest).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</td>';
                 htmls += '<td class="money">'+(results[i].amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</td>';
             htmls += '</tr>';
+            costTotal += results[i].cost;
+            interestTotal += results[i].interest;
+            amountTotal += results[i].amount;
         }
     }
-    document.getElementById("table-results").innerHTML = htmls;
+    htmls += '<tr>';
+        htmls += '<td colspan="3" style="text-align:right;"><b>รวม</b></td>';
+        htmls += '<td class="money"><b>'+(costTotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</b></td>';
+        htmls += '<td class="money"><b>'+(interestTotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</b></td>';
+        htmls += '<td class="money"><b>'+(amountTotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</b></td>';
+    htmls += '</tr>';
+    (<HTMLInputElement>document.getElementById("table-results")).innerHTML = htmls;
 }
 
 function runCalculatorDefault(): void {
@@ -86,12 +105,20 @@ function runCalculatorDefault(): void {
     let nextyear = '';
     let today = new Date();
     for(let m=1;m<=12;m++ ){
-        let month_at = ( (m>=10) ? m : '0'+m );
+        let month_at = displayMonth(m);
         if(m>today.getMonth()){
             inyear += '<option value="'+today.getFullYear()+'-'+month_at+'-01">01/'+month_at+'/'+today.getFullYear()+'</option>';
         }else{
             nextyear += '<option value="'+(today.getFullYear()+1)+'-'+month_at+'-01">01/'+month_at+'/'+(today.getFullYear()+1)+'</option>';
         }
     }
-    document.getElementById("calculator-date").innerHTML = inyear+nextyear;
+    (<HTMLInputElement>document.getElementById("calculator-date")).innerHTML = inyear+nextyear;
+    (<HTMLInputElement>document.getElementById("calculator-method")).addEventListener('change', function(){
+        (<HTMLInputElement>document.getElementById("calculator-amount")).value = '0';
+        if(this.value=='Period'){
+            (<HTMLInputElement>document.getElementById("method-unit")).innerHTML = 'งวด';
+        }else{
+            (<HTMLInputElement>document.getElementById("method-unit")).innerHTML = 'บาท';
+        }
+    });
 }

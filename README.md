@@ -1,2 +1,1 @@
 # LoanCalculator
-Loan Calculator
