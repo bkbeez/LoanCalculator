@@ -1,80 +1,61 @@
+/*  ฟังก์ชั่นการแสดงจำนวนเงิน
+    เช่น จาก 10000 เป็น 10,000.00
+*/
 function moneyDisplay(money: number): string {
     return money.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 }
-
+/*  ฟังก์ชั่นการแสดงเดือน
+    เช่น จาก 1 เป็น 01
+*/
 function monthDisplay(month: number): string {
     return ( (month>9) ? month.toString() : '0'+month );
 }
-
-function calculateByPeriod(money: number, rate: number, period: number, date: string): any {
+/*  ฟังก์ชั่นการคำนวนตารางเงินกู้
+    คืนค่าเป็น array
+*/
+function calLoanEstimate(money: number, rate: number, amount: number, method: string, date: string): any {
+    let begin = new Date(date);
+    let no = 1, balance = money, m = begin.getMonth()+1, y = begin.getFullYear();
     let results: { no: number, period: string, cost: number, interest: number, amount: number, balance: number }[] = [];
-    var begin = new Date(date);
-    let m = begin.getMonth()+1, y = begin.getFullYear();
-    let balance = money;
-    let cost = Math.round(money/period);
-    for(let no=1;no<=period;no++){
-        if(no==period){ cost = balance; }
-        let row = {'no':no, 'period':'01/2024', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
-        let lastday  = new Date(y,m,0);
-        row.period = monthDisplay(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
-        row.interest = parseFloat(((balance*(rate/100)*lastday.getDate())/365).toFixed(2));
-        row.cost = cost;
-        row.amount = parseFloat((row.cost+row.interest).toFixed(2));
-        balance -= cost;
-        row.balance = balance;
-        results.push(row);
-        if(m==12){
-            m = 1;
-            y++;
-        }else{
-            m++;
+    if( method=='Cost' ){
+        let cost = amount;
+        do {
+            if( balance<cost ){ cost = balance; }
+            let lastday  = new Date(y,m,0);
+            let row = {'no':no++, 'period':monthDisplay(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)', 'balance':0, 'cost':cost, 'interest':0, 'amount':0};
+            row.interest = parseFloat(((balance*(rate/100)*lastday.getDate())/365).toFixed(2));
+            row.amount = parseFloat((row.cost+row.interest).toFixed(2));
+            balance -= cost;
+            row.balance = balance;
+            results.push(row);
+            if( m==12 ){ m = 1; y++; }else{ m++; }
+        }  while ( balance>0 );
+    }else{
+        let period = amount, cost = Math.round(money/period);
+        for(let i=0;i<period;i++){
+            if( no==period ){ cost = balance; }
+            let lastday  = new Date(y,m,0);
+            let row = {'no':no++, 'period':monthDisplay(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)', 'balance':0, 'cost':cost, 'interest':0, 'amount':0};
+            row.interest = parseFloat(((balance*(rate/100)*lastday.getDate())/365).toFixed(2));
+            row.amount = parseFloat((row.cost+row.interest).toFixed(2));
+            balance -= cost;
+            row.balance = balance;
+            results.push(row);
+            if( m==12 ){ m = 1; y++; }else{ m++; }
         }
     }
     return results;
 }
-
-function calculateByCost(money: number, rate: number, cost: number, date: string): any {
-    let results: { no: number, period: string, cost: number, interest: number, amount: number, balance: number }[] = [];
-    var begin = new Date(date);
-    let m = begin.getMonth(), y = begin.getFullYear();
-    let balance = money;
-    let no = 1;
-    do {
-        if(balance<cost){ cost = balance; }
-        let row = {'no':no, 'period':'01/2000', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
-        let lastday  = new Date(y,m,0);
-        row.period = monthDisplay(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
-        row.interest = parseFloat(((balance*(rate/100)*lastday.getDate())/365).toFixed(2));
-        row.cost = cost;
-        row.amount = parseFloat((row.cost+row.interest).toFixed(2));
-        balance -= cost;
-        row.balance = balance;
-        results.push(row);
-        if(m==12){
-            m = 1;
-            y++;
-        }else{
-            m++;
-        }
-        no++;
-    }  while ( balance>0 );
-    return results;
-}
-
+//  ฟังก์ชั่นแสดงตารางเงินกู้
 function runCalculator(): void {
     let money : number = parseFloat((<HTMLInputElement>document.getElementById("calculator-money")).value);
     let rate : number = parseFloat((<HTMLInputElement>document.getElementById("calculator-rate")).value);
     let amount : number = parseFloat((<HTMLInputElement>document.getElementById("calculator-amount")).value);
     let method : string = (<HTMLInputElement>document.getElementById("calculator-method")).value;
     let date : string = (<HTMLInputElement>document.getElementById("calculator-date")).value;
-    let results;
-    if( method=='Period' ){
-        results = calculateByPeriod(money, rate, amount, date);
-    }else{
-        results = calculateByCost(money, rate, amount, date);
-    }
+    let results = calLoanEstimate(money, rate, amount, method ,date);
     let htmls = '';
-    let  costTotal=0, interestTotal=0, amountTotal=0;
+    let costTotal=0, interestTotal=0, amountTotal=0;
     if( results.length>0 ){
         for(let i=0;i<results.length;i++){
             htmls += '<tr>';
@@ -98,7 +79,7 @@ function runCalculator(): void {
     htmls += '</tr>';
     (<HTMLInputElement>document.getElementById("table-results")).innerHTML = htmls;
 }
-
+// ฟังก์ชั่นกำหนดค่าเริ่มต้น
 function runCalculatorDefault(): void {
     let inyear = '';
     let nextyear = '';
