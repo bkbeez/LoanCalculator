@@ -1,4 +1,9 @@
-function displayMonth(month: number): string {
+function moneyDisplay(money: number): string {
+    return money.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+}
+
+
+function monthDisplay(month: number): string {
     return ( (month>9) ? month.toString() : '0'+month );
 }
 
@@ -15,7 +20,7 @@ function calculateByPeriod(money: number, rate: number, period: number, date: st
         }
         let row = {'no':no, 'period':'01/2024', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
         let lastday  = new Date(y,m,0);
-        row.period = displayMonth(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
+        row.period = monthDisplay(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
         row.interest = parseFloat(((balance*(rate/100)*lastday.getDate())/365).toFixed(2));
         row.cost = cost;
         row.amount = parseFloat((row.cost+row.interest).toFixed(2));
@@ -46,7 +51,7 @@ function calculateByCost(money: number, rate: number, cost: number, date: string
         }
         let row = {'no':no, 'period':'01/2000', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
         let lastday  = new Date(y,m,0);
-        row.period = displayMonth(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
+        row.period = monthDisplay(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
         row.interest = parseFloat(((balance*(rate/100)*lastday.getDate())/365).toFixed(2));
         row.cost = cost;
         row.amount = parseFloat((row.cost+row.interest).toFixed(2));
@@ -83,10 +88,10 @@ function runCalculator(): void {
             htmls += '<tr>';
                 htmls += '<td class="no" style="text-align:center;">'+results[i].no+'</td>';
                 htmls += '<td class="month" style="text-align:left;">'+results[i].period+'</td>';
-                htmls += '<td class="money">'+(results[i].balance).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</td>';
-                htmls += '<td class="money">'+(results[i].cost).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</td>';
-                htmls += '<td class="money">'+(results[i].interest).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</td>';
-                htmls += '<td class="money">'+(results[i].amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</td>';
+                htmls += '<td class="money">'+moneyDisplay(results[i].balance)+'</td>';
+                htmls += '<td class="money">'+moneyDisplay(results[i].cost)+'</td>';
+                htmls += '<td class="money">'+moneyDisplay(results[i].interest)+'</td>';
+                htmls += '<td class="money">'+moneyDisplay(results[i].amount)+'</td>';
             htmls += '</tr>';
             costTotal += results[i].cost;
             interestTotal += results[i].interest;
@@ -95,9 +100,9 @@ function runCalculator(): void {
     }
     htmls += '<tr>';
         htmls += '<td colspan="3" style="text-align:right;"><b>รวม</b></td>';
-        htmls += '<td class="money"><b>'+(costTotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</b></td>';
-        htmls += '<td class="money"><b>'+(interestTotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</b></td>';
-        htmls += '<td class="money"><b>'+(amountTotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')+'</b></td>';
+        htmls += '<td class="money"><b>'+moneyDisplay(costTotal)+'</b></td>';
+        htmls += '<td class="money"><b>'+moneyDisplay(interestTotal)+'</b></td>';
+        htmls += '<td class="money"><b>'+moneyDisplay(amountTotal)+'</b></td>';
     htmls += '</tr>';
     (<HTMLInputElement>document.getElementById("table-results")).innerHTML = htmls;
 }
@@ -107,7 +112,7 @@ function runCalculatorDefault(): void {
     let nextyear = '';
     let today = new Date();
     for(let m=1;m<=12;m++ ){
-        let month_at = displayMonth(m);
+        let month_at = monthDisplay(m);
         if(m>(today.getMonth()+1)){
             inyear += '<option value="'+today.getFullYear()+'-'+month_at+'-01">01/'+month_at+'/'+today.getFullYear()+'</option>';
         }else{
