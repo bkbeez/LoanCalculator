@@ -4,17 +4,18 @@ function displayMonth(month) {
 function calculateByPeriod(money, rate, period, date) {
     var results = [];
     var begin = new Date(date);
-    var m = begin.getMonth();
+    var m = begin.getMonth() + 1;
     var y = begin.getFullYear();
     var balance = money;
-    var cost = Math.ceil(money / period);
+    var cost = Math.round(money / period);
     for (var no = 1; no <= period; no++) {
-        if (balance < cost) {
+        if (no == period) {
             cost = balance;
         }
         var row = { 'no': no, 'period': '01/2024', 'balance': 0, 'cost': 0, 'interest': 0, 'amount': 0 };
-        row.period = displayMonth(m) + '/' + y;
-        row.interest = parseFloat(((balance * (rate / period)) / 12).toFixed(2));
+        var lastday = new Date(y, m, 0);
+        row.period = displayMonth(m) + '/' + y + ' (<small>' + lastday.getDate() + ' วัน</small>)';
+        row.interest = parseFloat(((balance * (rate / 100) * lastday.getDate()) / 365).toFixed(2));
         row.cost = cost;
         row.amount = parseFloat((row.cost + row.interest).toFixed(2));
         balance -= cost;
@@ -42,8 +43,9 @@ function calculateByCost(money, rate, cost, date) {
             cost = balance;
         }
         var row = { 'no': no, 'period': '01/2000', 'balance': 0, 'cost': 0, 'interest': 0, 'amount': 0 };
-        row.period = displayMonth(m) + '/' + y;
-        row.interest = parseFloat(((balance * (rate / 100)) / 12).toFixed(2));
+        var lastday = new Date(y, m, 0);
+        row.period = displayMonth(m) + '/' + y + ' (<small>' + lastday.getDate() + ' วัน</small>)';
+        row.interest = parseFloat(((balance * (rate / 100) * lastday.getDate()) / 365).toFixed(2));
         row.cost = cost;
         row.amount = parseFloat((row.cost + row.interest).toFixed(2));
         balance -= cost;
@@ -104,7 +106,7 @@ function runCalculatorDefault() {
     var today = new Date();
     for (var m = 1; m <= 12; m++) {
         var month_at = displayMonth(m);
-        if (m > today.getMonth()) {
+        if (m > (today.getMonth() + 1)) {
             inyear += '<option value="' + today.getFullYear() + '-' + month_at + '-01">01/' + month_at + '/' + today.getFullYear() + '</option>';
         }
         else {

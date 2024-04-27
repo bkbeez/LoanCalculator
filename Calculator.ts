@@ -5,17 +5,18 @@ function displayMonth(month: number): string {
 function calculateByPeriod(money: number, rate: number, period: number, date: string): any {
     let results: { no: number, period: string, cost: number, interest: number, amount: number, balance: number }[] = [];
     var begin = new Date(date);
-    let m = begin.getMonth();
+    let m = begin.getMonth()+1;
     let y = begin.getFullYear();
     let balance = money;
-    let cost = Math.ceil(money/period);
+    let cost = Math.round(money/period);
     for(let no=1;no<=period;no++){
-        if(balance<cost){
+        if(no==period){
             cost = balance;
         }
         let row = {'no':no, 'period':'01/2024', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
-        row.period = displayMonth(m)+'/'+y;
-        row.interest = parseFloat(((balance*(rate/period))/12).toFixed(2));
+        let lastday  = new Date(y,m,0);
+        row.period = displayMonth(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
+        row.interest = parseFloat(((balance*(rate/100)*lastday.getDate())/365).toFixed(2));
         row.cost = cost;
         row.amount = parseFloat((row.cost+row.interest).toFixed(2));
         balance -= cost;
@@ -44,8 +45,9 @@ function calculateByCost(money: number, rate: number, cost: number, date: string
             cost = balance;
         }
         let row = {'no':no, 'period':'01/2000', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
-        row.period = displayMonth(m)+'/'+y;
-        row.interest = parseFloat(((balance*(rate/100))/12).toFixed(2));
+        let lastday  = new Date(y,m,0);
+        row.period = displayMonth(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
+        row.interest = parseFloat(((balance*(rate/100)*lastday.getDate())/365).toFixed(2));
         row.cost = cost;
         row.amount = parseFloat((row.cost+row.interest).toFixed(2));
         balance -= cost;
@@ -106,7 +108,7 @@ function runCalculatorDefault(): void {
     let today = new Date();
     for(let m=1;m<=12;m++ ){
         let month_at = displayMonth(m);
-        if(m>today.getMonth()){
+        if(m>(today.getMonth()+1)){
             inyear += '<option value="'+today.getFullYear()+'-'+month_at+'-01">01/'+month_at+'/'+today.getFullYear()+'</option>';
         }else{
             nextyear += '<option value="'+(today.getFullYear()+1)+'-'+month_at+'-01">01/'+month_at+'/'+(today.getFullYear()+1)+'</option>';
