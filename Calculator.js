@@ -7,8 +7,7 @@ function monthDisplay(month) {
 function calculateByPeriod(money, rate, period, date) {
     var results = [];
     var begin = new Date(date);
-    var m = begin.getMonth() + 1;
-    var y = begin.getFullYear();
+    var m = begin.getMonth() + 1, y = begin.getFullYear();
     var balance = money;
     var cost = Math.round(money / period);
     for (var no = 1; no <= period; no++) {
@@ -37,8 +36,7 @@ function calculateByPeriod(money, rate, period, date) {
 function calculateByCost(money, rate, cost, date) {
     var results = [];
     var begin = new Date(date);
-    var m = begin.getMonth();
-    var y = begin.getFullYear();
+    var m = begin.getMonth(), y = begin.getFullYear();
     var balance = money;
     var no = 1;
     do {

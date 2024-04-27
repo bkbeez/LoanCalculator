@@ -2,7 +2,6 @@ function moneyDisplay(money: number): string {
     return money.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 }
 
-
 function monthDisplay(month: number): string {
     return ( (month>9) ? month.toString() : '0'+month );
 }
@@ -10,14 +9,11 @@ function monthDisplay(month: number): string {
 function calculateByPeriod(money: number, rate: number, period: number, date: string): any {
     let results: { no: number, period: string, cost: number, interest: number, amount: number, balance: number }[] = [];
     var begin = new Date(date);
-    let m = begin.getMonth()+1;
-    let y = begin.getFullYear();
+    let m = begin.getMonth()+1, y = begin.getFullYear();
     let balance = money;
     let cost = Math.round(money/period);
     for(let no=1;no<=period;no++){
-        if(no==period){
-            cost = balance;
-        }
+        if(no==period){ cost = balance; }
         let row = {'no':no, 'period':'01/2024', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
         let lastday  = new Date(y,m,0);
         row.period = monthDisplay(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
@@ -34,21 +30,17 @@ function calculateByPeriod(money: number, rate: number, period: number, date: st
             m++;
         }
     }
-
     return results;
 }
 
 function calculateByCost(money: number, rate: number, cost: number, date: string): any {
     let results: { no: number, period: string, cost: number, interest: number, amount: number, balance: number }[] = [];
     var begin = new Date(date);
-    let m = begin.getMonth();
-    let y = begin.getFullYear();
+    let m = begin.getMonth(), y = begin.getFullYear();
     let balance = money;
     let no = 1;
     do {
-        if(balance<cost){
-            cost = balance;
-        }
+        if(balance<cost){ cost = balance; }
         let row = {'no':no, 'period':'01/2000', 'balance':0, 'cost':0, 'interest':0, 'amount':0};
         let lastday  = new Date(y,m,0);
         row.period = monthDisplay(m)+'/'+y+' (<small>'+lastday.getDate()+' วัน</small>)';
